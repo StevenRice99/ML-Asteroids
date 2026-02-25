@@ -81,7 +81,7 @@ public class Asteroid : Spawnable
             half.Size = Size * 0.5f;
             
             // Start moving the new asteroid.
-            half.Initialize(Random.insideUnitCircle.normalized, player);
+            half.Initialize(Random.insideUnitCircle.normalized, Player);
         }
     }
 }

@@ -16,7 +16,7 @@ public class Bullet : Spawnable
     private void OnCollisionEnter2D(Collision2D _)
     {
         // A collision is only possible with an asteroid so set that it has.
-        player.DestroyedAsteroid();
+        Player.DestroyedAsteroid();
         
         // Destroy the bullet.
         Destroy(gameObject);

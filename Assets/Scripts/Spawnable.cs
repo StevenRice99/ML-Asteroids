@@ -3,22 +3,32 @@
 /// <summary>
 /// Base spawnable class for bullets and asteroids.
 /// </summary>
+[SelectionBase]
+[DisallowMultipleComponent]
+[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Rigidbody2D))]
 public abstract class Spawnable : MonoBehaviour
 {
+    /// <summary>
+    /// The rigidbody for movement.
+    /// </summary>
     [Header("Base Requirements")]
     [Tooltip("The rigidbody for movement.")]
     [SerializeField]
     private Rigidbody2D body;
     
-    [Tooltip("How much force to add.")]
-    [Min(float.Epsilon)]
-    [SerializeField]
-    private float speed = 50;
+    /// <summary>
+    /// How much force to add.
+    /// </summary>
+    [field: Tooltip("How much force to add.")]
+    [field: Min(float.Epsilon)]
+    [field: SerializeField]
+    public float Speed { get; private set; } = 50;
     
     /// <summary>
     /// Reference to the player.
     /// </summary>
-    protected Player player;
+    protected Player Player;
     
     /// <summary>
     /// Initialize the object.
@@ -28,16 +38,19 @@ public abstract class Spawnable : MonoBehaviour
     public void Initialize(Vector2 direction, Player p)
     {
         // Keep a reference to the player.
-        player = p;
-        player.Spawned.Add(gameObject);
+        Player = p;
+        Player.Spawned.Add(gameObject);
         
         // Add force once since there is no drag.
-        body.AddForce(direction * speed);
+        body.AddForce(direction * Speed);
     }
-
+    
+    /// <summary>
+    /// Destroying the attached Behaviour will result in the game or Scene receiving OnDestroy.
+    /// </summary>
     private void OnDestroy()
     {
         // Clean up the reference.
-        player.Spawned.Remove(gameObject);
+        Player.Spawned.Remove(gameObject);
     }
 }
