@@ -143,14 +143,6 @@ public class Player : Agent
     /// <summary>
     /// Automatically aim and shoot at the nearest asteroid in heuristic mode.
     /// </summary>
-    [Header("Heuristic")]
-    [Tooltip("Automatically aim and shoot at the nearest asteroid in heuristic mode.")]
-    [SerializeField]
-    private bool reflexAgent = true;
-    
-    /// <summary>
-    /// Automatically aim and shoot at the nearest asteroid in heuristic mode.
-    /// </summary>
     [Tooltip("Layer mask for the auto aiming.")]
     [SerializeField]
     private LayerMask layerMask;
@@ -243,8 +235,8 @@ public class Player : Agent
         // "A" to move left, "D" to move right, and neither to not turn.
         Turn turn = Keyboard.current.aKey.isPressed ? Keyboard.current.dKey.isPressed ? Turn.None : Turn.Left : Keyboard.current.dKey.isPressed ? Turn.Right : Turn.None;
         
-        // If no auto aiming or a manual move has been made.
-        if (!reflexAgent || turn != Turn.None)
+        // See if we have chosen to perform a manual move.
+        if (turn != Turn.None)
         {
             // Apply the turn.
             discreteActions[1] = (int) turn;
