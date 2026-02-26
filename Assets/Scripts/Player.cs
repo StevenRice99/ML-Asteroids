@@ -500,7 +500,7 @@ public class Player : Agent
         }
         
         // Give a slight penalty for firing to ensure the agent learns to not just spam fire.
-        AddReward(-0.1f);
+        AddReward(-0.01f);
         
         // Create a new bullet.
         Bullet bullet = Instantiate(bulletPrefab, p, t.rotation);
@@ -528,7 +528,7 @@ public class Player : Agent
     private void OnCollisionEnter2D(Collision2D _)
     {
         // End the episode if an asteroid is hit and give a penalty.
-        AddReward(-1f);
+        SetReward(-1f);
         EndEpisode();
     }
     
@@ -538,7 +538,7 @@ public class Player : Agent
     public void DestroyedAsteroid()
     {
         // Simply add one score for every asteroid.
-        AddReward(1f);
+        AddReward(0.1f);
     }
     
     /// <summary>
