@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Unity.InferenceEngine;
@@ -138,7 +137,12 @@ public class Player : Agent
     [Tooltip("Delay before being able to shoot another bullet.")]
     [Min(float.Epsilon)]
     [SerializeField]
-    private float shootDelay = 0.2f;
+    private float shootDelay = 0.5f;
+    
+    /// <summary>
+    /// The current shooting cooldown.
+    /// </summary>
+    private float _cooldown;
     
     /// <summary>
     /// Automatically aim and shoot at the nearest asteroid in heuristic mode.
@@ -166,11 +170,6 @@ public class Player : Agent
     /// If the agent should shoot this frame.
     /// </summary>
     private bool _shoot;
-    
-    /// <summary>
-    /// If the agent can shoot.
-    /// </summary>
-    private bool _canShoot = true;
     
     /// <summary>
     /// How much time has past since the last asteroid was spawned.
@@ -216,11 +215,11 @@ public class Player : Agent
         _move = false;
         _turn = Turn.None;
         _shoot = false;
-        _canShoot = true;
+        _cooldown = 0;
         StopAllCoroutines();
     }
     
-/// <summary>
+    /// <summary>
     /// Implement Heuristic(ActionBuffers) to choose an action for this agent using a custom heuristic.
     /// </summary>
     /// <param name="actionsOut">The ActionBuffers which contain the continuous and discrete action buffers to write to.</param>
@@ -228,24 +227,23 @@ public class Player : Agent
     {
         // Implement keyboard controls.
         ActionSegment<int> discreteActions = actionsOut.DiscreteActions;
-
-        bool wKey = Keyboard.current.wKey.isPressed;
-        bool aKey = Keyboard.current.aKey.isPressed;
-        bool sKey = Keyboard.current.sKey.isPressed;
-        bool dKey = Keyboard.current.dKey.isPressed;
-        bool space = Keyboard.current.spaceKey.isPressed;
+        bool forward = Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed;
+        bool left = Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed;
+        bool right = Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed;
+        bool fire = Keyboard.current.spaceKey.isPressed;
+        bool nothing = Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed;
         
-        // "W" to move forward, otherwise don't move.
-        discreteActions[0] = wKey ? 1 : 0;
+        // "W" or the up arrow to move forward, otherwise don't move.
+        discreteActions[0] = forward ? 1 : 0;
         
         // See if we have chosen to perform a manual move. We also check the S key, despite not being able to move backwards, as a means to "hold" our movement.
-        if (wKey || sKey || aKey || dKey || space)
+        if (forward || left || right || fire || nothing)
         {
-            // Apply the turn. "A" to move left, "D" to move right, and neither to not turn.
-            discreteActions[1] = (int) (aKey ? dKey ? Turn.None : Turn.Left : dKey ? Turn.Right : Turn.None);
+            // Apply the turn. "A" or left arrow to move left, "D" or right arrow to move right, and neither to not turn.
+            discreteActions[1] = (int) (left ? right ? Turn.None : Turn.Left : right ? Turn.Right : Turn.None);
             
             // Space to shoot, otherwise do not shoot.
-            discreteActions[2] = space ? 1 : 0;
+            discreteActions[2] = fire ? 1 : 0;
             return;
         }
         
@@ -386,6 +384,26 @@ public class Player : Agent
     }
     
     /// <summary>
+    /// Write a mask to block shooting when the agent is not able to.
+    /// </summary>
+    /// <param name="actionMask"></param>
+    public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
+    {
+        // Can always move forwards and back.
+        actionMask.SetActionEnabled(0, 0, true);
+        actionMask.SetActionEnabled(0, 1, true);
+        
+        // Can always turn.
+        actionMask.SetActionEnabled(1, 0, true);
+        actionMask.SetActionEnabled(1, 1, true);
+        actionMask.SetActionEnabled(1, 2, true);
+        
+        // Can only shoot if not on cooldown.
+        actionMask.SetActionEnabled(2, 0, true);
+        actionMask.SetActionEnabled(2, 1, _cooldown <= 0);
+    }
+
+    /// <summary>
     /// Awake is called when an enabled script instance is being loaded.
     /// </summary>
     protected override void Awake()
@@ -434,6 +452,11 @@ public class Player : Agent
     /// </summary>
     private void FixedUpdate()
     {
+        if (_cooldown > 0)
+        {
+            _cooldown -= Time.fixedDeltaTime;
+        }
+        
         // Clean up asteroids and bullets that have gone too far.
         for (int i = 0; i < Spawned.Count; i++)
         {
@@ -494,31 +517,19 @@ public class Player : Agent
         }
 
         // If the player cannot shoot or the agent did not request to shoot, return.
-        if (!_canShoot || !_shoot)
+        if (_cooldown > 0 || !_shoot)
         {
+            // When we don't shoot, give a slight reward for surviving and not shooting.
             return;
         }
         
         // Give a slight penalty for firing to ensure the agent learns to not just spam fire.
-        AddReward(-0.01f);
+        AddReward(-0.1f);
         
         // Create a new bullet.
         Bullet bullet = Instantiate(bulletPrefab, p, t.rotation);
         bullet.name = "Bullet";
         bullet.Initialize(t.up, this);
-        
-        // Start the cooldown to shoot again.
-        StopAllCoroutines();
-        StartCoroutine(ShootCooldown());
-        return;
-        
-        // Delay to shoot again.
-        IEnumerator ShootCooldown()
-        {
-            _canShoot = false;
-            yield return new WaitForSeconds(shootDelay);
-            _canShoot = true;
-        }
     }
     
     /// <summary>
@@ -537,8 +548,8 @@ public class Player : Agent
     /// </summary>
     public void DestroyedAsteroid()
     {
-        // Simply add one score for every asteroid.
-        AddReward(0.1f);
+        // Add a score for every asteroid.
+        AddReward(0.5f);
     }
     
     /// <summary>

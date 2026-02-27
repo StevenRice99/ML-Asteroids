@@ -400,7 +400,7 @@ MonoBehaviour:
   spawnRate: 1
   moveSpeed: 1
   turnSpeed: 0.1
-  shootDelay: 0.2
+  shootDelay: 0.5
   layerMask:
     serializedVersion: 2
     m_Bits: 8
@@ -499,12 +499,12 @@ MonoBehaviour:
   m_DetectableTags: []
   m_RaysPerDirection: 30
   m_MaxRayDegrees: 180
-  m_SphereCastRadius: 0.1
-  m_RayLength: 30
+  m_SphereCastRadius: 0.2
+  m_RayLength: 50
   m_RayLayerMask:
     serializedVersion: 2
     m_Bits: 4294962312
-  m_ObservationStacks: 1
+  m_ObservationStacks: 2
   m_AlternatingRayOrder: 0
   m_UseBatchedRaycasts: 0
   rayHitColor: {r: 1, g: 0, b: 0, a: 1}
