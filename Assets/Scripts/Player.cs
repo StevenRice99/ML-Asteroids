@@ -386,7 +386,7 @@ public class Player : Agent
     /// <summary>
     /// Write a mask to block shooting when the agent is not able to.
     /// </summary>
-    /// <param name="actionMask"></param>
+    /// <param name="actionMask">The actions mask.</param>
     public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
     {
         // Can always move forwards and back.
