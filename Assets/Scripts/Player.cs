@@ -452,11 +452,6 @@ public class Player : Agent
     /// </summary>
     private void FixedUpdate()
     {
-        if (_cooldown > 0)
-        {
-            _cooldown -= Time.fixedDeltaTime;
-        }
-        
         // Clean up asteroids and bullets that have gone too far.
         for (int i = 0; i < Spawned.Count; i++)
         {
@@ -476,9 +471,9 @@ public class Player : Agent
         // Keep the player in bounds.
         t.position = new(Mathf.Clamp(p.x, -size, size), Mathf.Clamp(p.y, -size, size), 0);
         
-        _elapsedTime += Time.fixedDeltaTime;
-        
+        float delta = Time.fixedDeltaTime;
         // If enough time has passed, spawn a new asteroid.
+        _elapsedTime += delta;
         if (_elapsedTime >= spawnRate)
         {
             // Choose a random direction from the center of the level.
@@ -515,13 +510,22 @@ public class Player : Agent
         {
             body.AddTorque(turnSpeed * (_turn == Turn.Left ? 1 : -1));
         }
-
+        
+        // Handle recharging the attack.
+        if (_cooldown > 0)
+        {
+            _cooldown -= delta;
+        }
+        
         // If the player cannot shoot or the agent did not request to shoot, return.
         if (_cooldown > 0 || !_shoot)
         {
             // When we don't shoot, give a slight reward for surviving and not shooting.
             return;
         }
+        
+        // Put the attack on cooldown.
+        _cooldown = shootDelay;
         
         // Give a slight penalty for firing to ensure the agent learns to not just spam fire.
         AddReward(-0.1f);
