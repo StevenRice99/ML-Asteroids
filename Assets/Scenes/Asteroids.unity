@@ -449,7 +449,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Record: 1
   NumStepsToRecord: 100000
-  DemonstrationName: AsteroidsReflexAgent
+  DemonstrationName: Demonstration
   DemonstrationDirectory: 
 --- !u!1 &1796553098
 GameObject:
