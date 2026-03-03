@@ -53,7 +53,7 @@ The heuristic agent tries to aim at the "best" asteroid. This is determined by f
 
 ## Results
 
-TODO.
+The trained model does not perform the best, highlighting how it has likely overfit to the Behavioral Cloning (BC) from the [heuristic agent](#heuristic-agent "Heuristic Agent") which only shot at the "best" asteroid, meaning the learned model does not shoot as frequently as it potentially could.
 
 ## Running
 
