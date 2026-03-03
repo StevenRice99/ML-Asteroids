@@ -75,7 +75,7 @@ behaviors:
     behavioral_cloning:
       demo_path: Demonstrations/
       steps: 1000000
-      strength: 0.2
+      strength: 0.1
       samples_per_update: 0
       num_epoch: 3
       batch_size: 1024
