@@ -346,8 +346,54 @@ public class Player : Agent
         // Turn towards the calculated intercept direction.
         discreteActions[1] = (int)(Vector3.Cross(aimDirection.normalized, t.up).z < 0 ? Turn.Left : Turn.Right);
         
-        // Shoot if the player is closely aligned with the predicted intercept path which has been set to five degrees.
-        discreteActions[2] = Vector3.Angle(t.up, aimDirection) < 5f ? 1 : 0;
+        // Shoot if any asteroid is closely aligned with its predicted intercept path.
+        float bulletSpeed = bulletPrefab.Speed;
+        discreteActions[2] = Spawned
+            .Where(s => s.CompareTag("Asteroid"))
+            .Any(asteroid =>
+            {
+                targetPos = asteroid.transform.position;
+                targetVel = asteroid.GetComponent<Rigidbody2D>().linearVelocity;
+                deltaP = targetPos - p;
+                
+                float aS = targetVel.sqrMagnitude - bulletSpeed * bulletSpeed;
+                float bS = 2f * Vector2.Dot(deltaP, targetVel);
+                float cS = deltaP.sqrMagnitude;
+                
+                float det = bS * bS - 4f * aS * cS;
+                if (det <= 0f)
+                {
+                    return false;
+                }
+                
+                float sqrtDet = Mathf.Sqrt(det);
+                float t1 = (-bS + sqrtDet) / (2f * aS);
+                float t2 = (-bS - sqrtDet) / (2f * aS);
+                
+                float tIntercept = -1f;
+                switch (t1)
+                {
+                    case > 0f when t2 > 0f:
+                        tIntercept = Mathf.Min(t1, t2);
+                        break;
+                    case > 0f:
+                        tIntercept = t1;
+                        break;
+                    default:
+                    {
+                        if (t2 > 0f) tIntercept = t2;
+                        break;
+                    }
+                }
+                
+                if (tIntercept <= 0f)
+                {
+                    return false;
+                }
+                
+                Vector3 interceptDir = (Vector3)(targetPos + targetVel * tIntercept) - raw;
+                return Vector3.Angle(t.up, interceptDir) < 5f;
+            }) ? 1 : 0;
     }
     
     /// <summary>
