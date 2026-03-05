@@ -376,7 +376,7 @@ public class Player : Agent
         }
         
         // If it's a threat, and we're not yet facing it, check if we'll collide before we can face it.
-        if (threatInfo is { IsThreat: true } && threatInfo.TimeToCollision < 0.75f)
+        if (threatInfo is { IsThreat: true } && threatInfo.TimeToCollision < 1.5f)
         {
             angleToTarget = Vector3.Angle(t.up, aimDirection);
             if (angleToTarget > 30f)
