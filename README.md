@@ -1,6 +1,6 @@
 # ML-Asteroids
 
-Teaching an agent to player [Asteroids](https://en.wikipedia.org/wiki/Asteroids_(video_game) "Asteroids") with [Unity ML-Agents](https://docs.unity3d.com/Packages/com.unity.ml-agents@latest "Unity ML-Agents"). See a [web demo](https://stevenrice.ca/ml-asteroids "ML-Asteroids").
+Teaching an agent to play [Asteroids](https://en.wikipedia.org/wiki/Asteroids_(video_game) "Asteroids") with [Unity ML-Agents](https://docs.unity3d.com/Packages/com.unity.ml-agents@latest "Unity ML-Agents"). See a [web demo](https://stevenrice.ca/ml-asteroids "ML-Asteroids").
 
 - [Purpose](#purpose "Purpose")
 - [Game Overview](#game-overview "Game Overview")
